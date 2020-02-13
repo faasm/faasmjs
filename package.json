@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node ./bin/www",
     "faasm": "docker-compose up",
+    "toolchain": "./scripts/toolchain.sh",
     "build": "./scripts/build_wasm.sh"
   },
   "dependencies": {

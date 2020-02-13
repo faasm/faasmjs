@@ -2,6 +2,9 @@
 *.o
 
 # WebAssembly
+build/
+
+# Faasm
 machine-code/
 
 # JS/ Node

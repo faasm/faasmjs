@@ -1,11 +1,24 @@
 #!/bin/bash
 
-# Use the Faasm toolchain container to build the wasm
+# This gets executed inside the Faasm toolchain container
 
-docker run \
-    -v $(pwd):/usr/local/code/faasm \
-    -w /usr/local/code/faasm \
-    faasm/toolchain:0.0.6 \
-    ./scripts/compile_wasm.sh
+# We currently assume the Faasm codebase is checked out at
+# /usr/local/code/faasm as it is in the toolchain container
+TOOLCHAIN_FILE=/usr/local/code/faasm/toolchain/FaasmToolchain.cmake
+
+# Run CMake build for the functions
+mkdir -p func/build
+pushd func/build >> /dev/null
+
+cmake -GNinja \
+    -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE} \
+    ..
+
+ninja
+
+# Copy the wasm files into place
+cp *.wasm ../../wasm
+
+popd >> /dev/null
 
 
