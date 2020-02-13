@@ -6,7 +6,8 @@
     "start": "node ./bin/www",
     "faasm": "docker-compose up",
     "toolchain": "./scripts/toolchain.sh",
-    "build": "./scripts/build_wasm.sh"
+    "build": "./scripts/build_wasm.sh",
+    "upload": "./scripts/upload.sh"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",

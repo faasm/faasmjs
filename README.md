@@ -48,3 +48,18 @@ From the resulting prompt you can invoke the wasm build with:
 This runs the CMake build for the `func` directory of this repo, and places 
 any resulting WebAssembly files in the `wasm` directory.
 
+## Uploading functions to Faasm
+
+To offload work to Faasm, you need to upload your function code. This can 
+be done with:
+
+```
+npm run upload -- <func name> <your file>
+```
+
+For the `hellojs` example this would be:
+
+```
+npm run upload -- hellojs wasm/hellojs.wasm
+```
+
