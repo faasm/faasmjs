@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "run-faasm": "./scripts/run_faasm.sh",
-    "build-wasm": "./scripts/build_wasm.sh"
+    "faasm": "docker-compose up",
+    "build": "./scripts/build_wasm.sh"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
