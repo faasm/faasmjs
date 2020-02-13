@@ -1,3 +1,3 @@
 import { runFaasmFunc } from "/javascripts/faasm.js";
 
-runFaasmFunc("/wasm/hellojs.wasm");
+runFaasmFunc("hellojs", "/wasm/hellojs.wasm");
