@@ -1,10 +1,13 @@
 #include "faasm/faasm.h"
-#include "string.h"
+#include "faasm/input.h"
+
+#include <stdio.h>
+#include <string.h>
 
 /**
  * Chained function that will get invoked on the server
  */
-FAASM_FUNC(1) {
+FAASM_FUNC(other, 1) {
     const char* input = faasm::getStringInput("No input");
     printf("Faasmjs sent me: %s\n", input);
 

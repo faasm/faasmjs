@@ -27,6 +27,13 @@ You can then run the simple app:
 node app.js
 ```
 
+## Experimental WebAssembly features
+
+Certain functions rely on experimental WASM features, you'll need to **use Chrome** and enable the features:
+
+- Go to `chrome://flags`
+- Enable "Experimental WebAssembly" and "WebAssembly SIMD support" 
+
 ## Building WebAssembly
 
 To build WebAssembly binaries we use the Faasm toolchain container. 
