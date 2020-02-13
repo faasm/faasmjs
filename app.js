@@ -2,6 +2,8 @@ var express = require('express');
 var logger = require('morgan');
 var path = require('path');
 
+express.static.mime.types['wasm'] = 'application/wasm';
+
 var app = express();
 
 app.use(logger('dev'));
@@ -17,7 +19,7 @@ app.use('/func', funcRouter);
 
 // Views
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.set('view engine', 'pug');
 
 // var createError = require('http-errors');
 // var cookieParser = require('cookie-parser');
