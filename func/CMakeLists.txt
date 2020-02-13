@@ -20,3 +20,4 @@ function(faasm_func func_name file_name)
 endfunction(faasm_func)
 
 faasm_func(hellojs hellojs.cpp)
+faasm_func(chain chain.cpp)
