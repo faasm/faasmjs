@@ -1,0 +1,11 @@
+# CPP
+*.o
+
+# WebAssembly
+machine-code/
+
+# JS/ Node
+node_modules
+package-lock.json
+*.log
+*.gz

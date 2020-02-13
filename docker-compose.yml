@@ -1,0 +1,45 @@
+version: "3"
+
+services:
+  redis:
+    image: faasm/redis:0.0.6
+
+  upload:
+    image: faasm/upload:0.0.6
+    ports:
+      - "8002:8002"
+    depends_on:
+      - redis
+      - redis
+    volumes:
+      - ./machine-code/:/usr/local/faasm/object/
+      - ./wasm/:/usr/local/code/faasm/wasm/
+    environment:
+      - REDIS_STATE_HOST=redis
+      - REDIS_QUEUE_HOST=redis
+
+  worker:
+    image: faasm/knative-worker:${FAASM_VERSION}
+    depends_on:
+      - upload
+    expose:
+      - "8080"
+    privileged: yes
+    volumes:
+      - ./machine-code/:/usr/local/faasm/object/
+    environment:
+      - FUNCTION_STORAGE=fileserver
+      - FILESERVER_URL=http://upload:8002
+      - REDIS_STATE_HOST=redis
+      - REDIS_QUEUE_HOST=redis
+      - MAX_IN_FLIGHT_RATIO=1
+      - MAX_WORKERS_PER_FUNCTION=4
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./scripts/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - worker
+    ports:
+      - "8080:8080"
