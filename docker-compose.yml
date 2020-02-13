@@ -12,7 +12,6 @@ services:
       - redis
     volumes:
       - ./machine-code/:/usr/local/faasm/object/
-      - ./wasm/:/usr/local/code/faasm/wasm/
     environment:
       - REDIS_STATE_HOST=redis
       - REDIS_QUEUE_HOST=redis

@@ -45,8 +45,7 @@ From the resulting prompt you can invoke the wasm build with:
 ./scripts/build_wasm.sh
 ```
 
-This runs the CMake build for the `func` directory of this repo, and places 
-any resulting WebAssembly files in the `wasm` directory.
+The resulting WebAssembly files are placed in the `public/wasm` directory.
 
 ## Uploading functions to Faasm
 
@@ -60,6 +59,6 @@ npm run upload -- <func name> <your file>
 For the `hellojs` example this would be:
 
 ```
-npm run upload -- hellojs wasm/hellojs.wasm
+npm run upload -- hellojs public/wasm/hellojs.wasm
 ```
 

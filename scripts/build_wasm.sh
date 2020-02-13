@@ -17,7 +17,7 @@ cmake -GNinja \
 ninja
 
 # Copy the wasm files into place
-cp *.wasm ../../wasm
+cp *.wasm ../../public/wasm
 
 popd >> /dev/null
 
