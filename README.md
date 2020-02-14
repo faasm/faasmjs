@@ -158,7 +158,7 @@ POSIX-like syscalls (e.g. `mmap`).
 
 This interface is primarily designed for a server-side context, but we can support 
 Faasm functions in the browser by implementing a subset in Javascript (see 
-`public/javascripts/faasm/faasm.js`).
+[faasm.js](https://github.com/Shillaker/faasmjs/blob/master/public/javascripts/faasm/faasm.js)).
 
 ## Sharing State
 
