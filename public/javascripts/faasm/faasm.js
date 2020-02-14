@@ -259,6 +259,30 @@ function getrlimit(a, b) {
 // WASM EXECUTION
 // --------------------------------------------------
 
+onmessage = function(msg) {
+    let funcName = msg.data[0];
+    let funcUrl = msg.data[1];
+    let input = null;
+    let inputLen = null;
+
+    if(msg.data.size > 2) {
+        input = msg.data[2];
+        inputLen = msg.data[3];
+
+        console.log("Executing " + funcName + " at " + funcUrl + " with input " + input);
+    } else {
+        console.log("Executing " + funcName + " at " + funcUrl);
+    }
+
+    if(runFaasmFunc(funcName, funcUrl, input, inputLen)) {
+        let result = "Successfully executed " + funcName;
+        postMessage(result);
+    } else {
+        let result = "Failed to executed " + funcName;
+        postMessage(result);
+    }
+};
+
 function runFaasmFunc(funcName, wasmUrl, input, inputLen) {
     faasmFunc = funcName;
 
@@ -281,7 +305,7 @@ function runFaasmFunc(funcName, wasmUrl, input, inputLen) {
         }
     };
 
-    if (input !== undefined && inputLen !== undefined) {
+    if (input && inputLen) {
         wasmInput = input;
         wasmInputLen = inputLen;
     }
@@ -301,9 +325,11 @@ function runFaasmFunc(funcName, wasmUrl, input, inputLen) {
 
         // Log any output from the function
         console.log("Wasm output: " + wasmOutput);
+    }).catch(reason => {
+        console.error("WASM failed: " + reason);
+
+        return false;
     });
 
-    return 0;
+    return true;
 }
-
-export {runFaasmFunc}

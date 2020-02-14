@@ -1,3 +1,7 @@
-import { runFaasmFunc } from "/javascripts/faasm/faasm.js";
+let w = new Worker("/javascripts/faasm/faasm.js");
 
-runFaasmFunc("hellojs", "/wasm/hellojs.wasm");
+w.postMessage(["hellojs", "/wasm/hellojs.wasm"]);
+
+w.onmessage = function(res) {
+    console.log(res.data);
+};
