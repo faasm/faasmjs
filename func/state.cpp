@@ -8,12 +8,13 @@
 #define STATE_LEN 16
 
 /**
- * Executes on the server
+ * Executes in the Faasm instance.
  */
 FAASM_FUNC(other, 1) {
     const char* expected = "I am the client";
 
     // Pull the current state value
+    faasmPullState(STATE_KEY, STATE_LEN);
     char actual[STATE_LEN];
     faasmReadState(STATE_KEY, (uint8_t*)actual, STATE_LEN);
 
@@ -31,7 +32,7 @@ FAASM_FUNC(other, 1) {
 }
 
 /**
- * Executes in the browser
+ * Executes in the browser.
  */
 FAASM_MAIN_FUNC() {
     // Write some bytes to shared state

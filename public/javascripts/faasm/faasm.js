@@ -4,6 +4,7 @@ let faasmHost = "localhost";
 let faasmInvokePort = 8080;
 let faasmUploadPort = 8002;
 let faasmInvokeUrl = "http://" + faasmHost + ":" + faasmInvokePort;
+let faasmUploadUrl = "http://" + faasmHost + ":" + faasmUploadPort;
 let faasmUser = "faasmjs";
 let faasmFunc = null;
 
@@ -27,9 +28,12 @@ let faasmState = {};
  * @returns {string} - Javascript version of the string
  */
 function getStringFromWasm(offset, len) {
+    // Handle unspecified length
+    // TODO - improve this handling of null-terminated strings
+    let isNullTerminated = false;
     if (!len) {
-        // TODO - handle arbitrary lengths. This will be easier with newer JS/ wasm features
-        len = 100;
+        isNullTerminated = true;
+        len = 50;
     }
 
     // Get the output bytes from the wasm memory
@@ -37,7 +41,13 @@ function getStringFromWasm(offset, len) {
 
     // Convert to a JS string
     let dec = new TextDecoder();
-    return dec.decode(view);
+    let result = dec.decode(view);
+
+    if(isNullTerminated) {
+        result = result.split("\0").shift();
+    }
+
+    return result;
 }
 
 /**
@@ -76,10 +86,6 @@ async function postDataAsync(url, data) {
 }
 
 function postDataSync(url, data) {
-    // TODO - make requests to the server asynchronous
-    // The major problem here is that the C++ code itself is *not* asynchronous
-    // so if we start making asynchronous calls in the JS it really messes
-    // things up.
     let request = new XMLHttpRequest();
     request.open("POST", url, false);
     request.setRequestHeader("Content-Type", "application/json");
@@ -87,6 +93,30 @@ function postDataSync(url, data) {
     request.send(JSON.stringify(data));
 
     return request.responseText;
+}
+
+function putBinaryDataSync(url, data) {
+    let request = new XMLHttpRequest();
+    request.open("PUT", url, false);
+    request.setRequestHeader("Content-Type", "application/octet-stream");
+    request.setRequestHeader("Accept", "text/plain");
+    request.send(data);
+
+    return request.responseText;
+}
+
+function getBinaryDataSync(url) {
+    let request = new XMLHttpRequest();
+    request.open("GET", url, false);
+    request.setRequestHeader("Accept", "application/octet-stream");
+    request.responseType = "arraybuffer";
+    request.send();
+
+    return new Uint8Array(request.response);
+}
+
+function getStateUrl(stateKey) {
+    return faasmUploadUrl + "/s/" + faasmUser + "/" + stateKey;
 }
 
 // --------------------------------------------------
@@ -190,10 +220,14 @@ function __faasm_await_call(callId) {
  * @param len - length of the state value
  */
 function __faasm_pull_state(keyOffset, len) {
-    console.log("wasm: __faasm_pull_state(" + keyOffset + ", " + len + ")");
     let key = getStringFromWasm(keyOffset);
+    console.log("wasm: __faasm_pull_state(" + key + ", " + len + ")");
 
-    // TODO - pull state from cluster
+    // Get from remote
+    let url = getStateUrl(key);
+
+    // Write to local state
+    faasmState[key] = getBinaryDataSync(url);
 
     return 0;
 }
@@ -205,15 +239,16 @@ function __faasm_pull_state(keyOffset, len) {
  * @param len - length of the buffer
  */
 function __faasm_read_state(keyOffset, buffer, len) {
-    console.log("wasm: __faasm_read_state(" + keyOffset + ", " +  buffer + ", " + len + ")");
     let key = getStringFromWasm(keyOffset);
+    console.log("wasm: __faasm_read_state(" + key + ", " +  buffer + ", " + len + ")");
 
-    // TODO - write state value to wasm memory
     if(!faasmState.hasOwnProperty(key)) {
         __faasm_pull_state(key, len);
     }
 
-    // TODO - copy data from state cache to wasm memory
+    // Set value in wasm memory
+    let wasmBuffer = new Uint8Array(wasmMemory, buffer, len);
+    wasmBuffer.set(faasmState[key]);
 
     return 0;
 }
@@ -225,10 +260,11 @@ function __faasm_read_state(keyOffset, buffer, len) {
  * @param len - the length of the value
  */
 function __faasm_write_state(keyOffset, buffer, len) {
-    console.log("wasm: __faasm_write_state(" + keyOffset + ", " +  buffer + ", " + len + ")");
     let key = getStringFromWasm(keyOffset);
+    console.log("wasm: __faasm_write_state(" + key + ", " +  buffer + ", " + len + ")");
 
-    // TODO - write to state object
+    // Set to local memory
+    faasmState[key] = new Uint8Array(wasmMemory, buffer, len);
 
     return 0;
 }
@@ -238,7 +274,13 @@ function __faasm_write_state(keyOffset, buffer, len) {
  * @param keyOffset - offset of the key in wasm memory
  */
 function __faasm_push_state(keyOffset) {
-    // TODO - push from local to global
+    let key = getStringFromWasm(keyOffset);
+    console.log("wasm: __faasm_write_state(" + key + ")");
+
+    // Upload to Faasm state remotely
+    let url = getStateUrl(key);
+    let localData = faasmState[key];
+    putBinaryDataSync(url, localData);
 
     return 0;
 }

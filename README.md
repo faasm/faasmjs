@@ -19,36 +19,41 @@ This PoC demonstrates the following:
 Below is a "quick start" guide followed by a discussion of the implementation 
 and challenges.
 
+## Caveats
+
+There are a few caveats to be aware of before looking into the code:
+
+- When dealing with WebAssembly there's _a lot_ of fiddling with byte arrays
+- C++ code has lots of casting to and from `uint8_t`
+- Javascript code makes heavy use of [`Uint8Array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array). 
+- The C++ code uses the low-level Faasm API involving lots of byte arrays. This be made _much_ nicer
+- There's an inherent mismatch between asynchronous JS and synchronous WebAssembly (see section below)  
+
 ## Quick Start
 
 _Note: this requires Docker, docker-compose, Node.js and npm._
 
-This PoC uses Express.js and can be set up with: 
+To run the PoC:
 
 ```bash
+# Install the deps
 npm install
-```
 
-You can then start a containerised Faasm instance locally by running:
-
-```bash
+# Run Faasm
 npm run faasm
-```
 
-You can start the sample app with:
-
-```bash
+# Start the demo app
 npm start
 ```
 
-If you visit `http://localhost:3000` you should see a page with a couple 
-of links, one to the "Hello" function. The internals of this are 
-explained on the page itself.
+If you visit `http://localhost:3000` you should see a page with some links, 
+one to the "Hello" function. Visit this page in the latest Chrome and have
+the console open and you should see the messages. 
 
 ## Experimental WebAssembly features
 
 Faasm uses some experimental WASM features, to make sure your browser can 
-support them all, you'll need to **use the latest Chrome** and enable them:
+support them all, you'll need to use the latest Chrome and enable them:
 
 - Go to `chrome://flags`
 - Enable "Experimental WebAssembly" and "WebAssembly SIMD support" 

@@ -5,7 +5,7 @@
 #include <string.h>
 
 /**
- * Chained function that will get invoked on the server
+ * Executes in the Faasm instance.
  */
 FAASM_FUNC(other, 1) {
     const char* input = faasm::getStringInput("No input");
@@ -15,7 +15,7 @@ FAASM_FUNC(other, 1) {
 }
 
 /**
- * Main function that will execute in the browser
+ * Executes in the browser.
  */
 FAASM_MAIN_FUNC() {
     // Make the chained call
