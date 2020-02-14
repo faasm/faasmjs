@@ -27,6 +27,7 @@ services:
       - ./machine-code/:/usr/local/faasm/object/
     environment:
       - FUNCTION_STORAGE=fileserver
+      - LOG_LEVEL=debug
       - FILESERVER_URL=http://upload:8002
       - REDIS_STATE_HOST=redis
       - REDIS_QUEUE_HOST=redis

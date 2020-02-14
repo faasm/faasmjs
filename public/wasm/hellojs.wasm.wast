@@ -1,8 +1,9 @@
 (module
   (type $0 (func (result i32)))
-  (type $1 (func (param i32 i32)))
-  (type $2 (func (param i32 i32) (result i32)))
-  (type $3 (func (param i32) (result i32)))
+  (type $1 (func (param i32) (result i32)))
+  (type $2 (func (param i32 i32)))
+  (type $3 (func (param i32 i32) (result i32)))
+  (import "env" "puts" (func $puts (param i32) (result i32)))
   (import "env" "__faasm_write_output" (func $__faasm_write_output (param i32 i32)))
   (import "env" "__faasm_get_idx" (func $__faasm_get_idx (result i32)))
   (memory $5  65 65535)
@@ -14,7 +15,7 @@
   (elem $7 (i32.const 1)
     $_faasm_func_0)
   
-  (func $main (type $2)
+  (func $main (type $3)
     (param $0 i32)
     (param $1 i32)
     (result i32)
@@ -24,13 +25,16 @@
   
   (func $_faasm_func_0 (type $0)
     (result i32)
+    i32.const 4194320
+    call $puts
+    drop
     i32.const 4194304
-    i32.const 12
+    i32.const 15
     call $faasmSetOutput
     i32.const 0
     )
   
-  (func $faasmSetOutput (type $1)
+  (func $faasmSetOutput (type $2)
     (param $0 i32)
     (param $1 i32)
     local.get $0
@@ -43,13 +47,13 @@
     call $__faasm_get_idx
     )
   
-  (func $exec (type $3)
+  (func $exec (type $1)
     (param $0 i32)
     (result i32)
     local.get $0
     i32.const 2
     i32.shl
-    i32.const 4194320
+    i32.const 4194352
     i32.add
     i32.load
     call_indirect $4 (type $0)
@@ -61,7 +65,8 @@
     )
   
   (data $8 (i32.const 4194304)
-    "Hello faasm.js!\00\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00")
+    "Hello faasm.js!\00Hello from inside wasm.\00\00\00\00\00\00\00\00\00\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00"
+    "\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00")
   
   ;;(custom_section ".debug_info"
   ;;  (after data)

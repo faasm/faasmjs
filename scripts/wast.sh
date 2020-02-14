@@ -5,4 +5,7 @@ if [[ -z "$1" ]]; then
   exit 1
 fi
 
-/faasm/build/third-party/WAVM/bin/wavm disassemble $1 $1.wast
+WAST_OUT=$1.wast
+/faasm/build/third-party/WAVM/bin/wavm disassemble $1 ${WAST_OUT} --enable simd
+
+echo ".wast file at ${WAST_OUT}"
