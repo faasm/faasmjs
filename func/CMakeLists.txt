@@ -21,3 +21,4 @@ endfunction(faasm_func)
 
 faasm_func(hellojs hellojs.cpp)
 faasm_func(chain chain.cpp)
+faasm_func(state state.cpp)

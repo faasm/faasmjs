@@ -181,6 +181,10 @@ function __faasm_await_call(callId) {
     return 0;
 }
 
+function __faasm_read_state(key, offset, len) {
+
+}
+
 function puts(offset) {
     let printString = getStringFromWasm(offset, undefined);
     console.log("wasm: \"" + printString + "\"");
