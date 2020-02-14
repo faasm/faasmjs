@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <string.h>
 
+/**
+ * Simple function to show execution in the browser.
+ */
 FAASM_MAIN_FUNC() {
     const char *message = "Hello faasm.js!";
 
