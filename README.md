@@ -118,12 +118,12 @@ These are uploaded to Faasm under the `faasmjs` user.
 
 Faasm functions make "chained" calls to other functions to perform parallel
 processing and offload work. This chaining is fundamental to implementing more 
-complex serverless applications and is a fundamental part of the Faasm runtime. 
+complex serverless applications and is a key part of the Faasm runtime. 
 
-In the browser-based context we have a single Faasm function executing in a 
-Javascript Web Worker, which makes chained calls over the network to an underlying
-Faasm cluster. These functions can themselves make further chained calls within the
-cluster.
+In the browser-based context we have a single Faasm function written as a WebAssembly 
+binary, executing in a Javascript Web Worker. This makes chained calls over the 
+network to an underlying Faasm cluster. Functions in the cluster can then make further 
+chained calls.
 
 The browser-based function is free to await the results of these chained calls, or 
 to continue its execution. 
@@ -145,9 +145,9 @@ and asynchronous Javascript is the goal of
 work would require integrating this into Faasm.js.
 
 For now we can execute blocking Faasm functions in their own WebWorker, hence not 
-impacting the main browser thread, but there is undoubtedly a cleaner, more efficient 
+impacting the main browser thread. There is undoubtedly a cleaner, more efficient 
 way to do this. Faasm's function chaining model can actually be synchronous or 
-asynchronous, supporting a fork-join approach as well as synchronous call-and-block.
+asynchronous, supporting a fork-join approach as well as synchronous call-and-wait.
 
 ## Host Interface
 
