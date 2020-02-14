@@ -1,9 +1,3 @@
-// Wasm-related globals
-let wasmMemory = null;
-let wasmOutput = null;
-let wasmInput = null;
-let wasmInputLen = null;
-
 // Faasm-related globals (defaults)
 // TODO - make this configurable
 let faasmHost = "localhost";
@@ -12,6 +6,12 @@ let faasmUploadPort = 8002;
 let faasmInvokeUrl = "http://" + faasmHost + ":" + faasmInvokePort;
 let faasmUser = "faasmjs";
 let faasmFunc = null;
+
+// Wasm-related globals
+let wasmMemory = null;
+let wasmOutput = null;
+let wasmInput = null;
+let wasmInputLen = null;
 
 // --------------------------------------------------
 // UTILITIES
@@ -79,6 +79,8 @@ function postDataSync(url, data) {
     // things up.
     let request = new XMLHttpRequest();
     request.open("POST", url, false);
+    request.setRequestHeader("Content-Type", "application/json");
+    request.setRequestHeader("Accept", "text/plain");
     request.send(JSON.stringify(data));
 
     return request.responseText;
@@ -91,7 +93,7 @@ function postDataSync(url, data) {
 /**
  * Used to implement chaining on server-side. Not used on client-side.
  */
-async function __faasm_get_idx() {
+function __faasm_get_idx() {
     console.log("wasm: __faasm_get_idx");
     // This will always be zero in the browser env
     return 0;
@@ -102,7 +104,7 @@ async function __faasm_get_idx() {
  * @param offset - pointer to the function's output
  * @param len - length of the output
  */
-async function __faasm_write_output(offset, len) {
+function __faasm_write_output(offset, len) {
     console.log("wasm: __faasm_write_output(" + offset + ")");
     wasmOutput = getStringFromWasm(offset, len);
 }
@@ -115,7 +117,7 @@ async function __faasm_write_output(offset, len) {
  * @param offset - pointer to the buffer in the function's memory
  * @param len - length of the buffer
  */
-async function __faasm_read_input(offset, len) {
+function __faasm_read_input(offset, len) {
     console.log("wasm: __faasm_read_input(" + offset + ", " + len + ")");
 
     // TODO - error if sizes of buffer and input are mismatched
@@ -137,7 +139,7 @@ async function __faasm_read_input(offset, len) {
  * @param inputDataLen - the length of the input data
  * @returns number - the ID of the chained call
  */
-async function __faasm_chain_this(idx, inputData, inputDataLen) {
+function __faasm_chain_this(idx, inputData, inputDataLen) {
     console.log("wasm: __faasm_chain_this(" + idx + ", " + inputData + ", " + inputDataLen + ")");
 
     // Extract the input data from the wasm
@@ -154,7 +156,7 @@ async function __faasm_chain_this(idx, inputData, inputDataLen) {
     };
 
     // Submit the request
-    let responseBody = await postDataAsync(faasmInvokeUrl, data);
+    let responseBody = postDataSync(faasmInvokeUrl, data);
 
     // Return the call ID
     let callId = parseInt(responseBody);
@@ -168,42 +170,25 @@ async function __faasm_chain_this(idx, inputData, inputDataLen) {
  *
  * @param callId - the ID of the chained call
  */
-async function __faasm_await_call(callId) {
+function __faasm_await_call(callId) {
     console.log("wasm: __faasm_await_call(" + callId + ")");
 
-    // TODO - come up with a better way than polling
-    let pollCount = 0;
-    let success = doAwait(callId);
-    while(pollCount < 10 && !success) {
-        await setTimeout(() => {
-            success = doAwait(callId);
-            pollCount++;
-        }, 500);
-    }
-
-    return 0;
-}
-
-async function doAwait(callId) {
     let data = {
         id: callId,
         status: true,
     };
 
-    let responseBody = await postDataAsync(faasmInvokeUrl, data);
+    let responseBody = postDataSync(faasmInvokeUrl, data);
     if(responseBody.startsWith("SUCCESS")) {
         console.log("Chained call " + callId + " succeeded.");
         return true;
-    } else if(responseBody.startsWith("FAILED")) {
-        console.error("Chained call " + callId + " failed.");
-        return true;
     } else {
-        console.log("Chained call " + callId + " running.");
-        return false;
+        console.error("Chained call " + callId + " failed (" + responseBody + ")");
+        return true;
     }
 }
 
-async function puts(offset) {
+function puts(offset) {
     let printString = getStringFromWasm(offset, undefined);
     console.log("wasm: \"" + printString + "\"");
     return 0;
@@ -221,27 +206,27 @@ async function puts(offset) {
  * The mapping of syscall numbers can be seen at
  * https://github.com/Shillaker/musl/blob/wasm-prototype-1/arch/wasm32/bits/syscall.h.in
  */
-async function __syscall1(syscallNo, a) {
+function __syscall1(syscallNo, a) {
     return __syscall6(syscallNo, a, null, null, null, null, null);
 }
 
-async function __syscall2(syscallNo, a, b) {
+function __syscall2(syscallNo, a, b) {
     return __syscall6(syscallNo, a, b, null, null, null, null);
 }
 
-async function __syscall3(syscallNo, a, b, c) {
+function __syscall3(syscallNo, a, b, c) {
     return __syscall6(syscallNo, a, b, c, null, null, null);
 }
 
-async function __syscall4(syscallNo, a, b, c, d) {
+function __syscall4(syscallNo, a, b, c, d) {
     return __syscall6(syscallNo, a, b, c, d, null, null);
 }
 
-async function __syscall5(syscallNo, a, b, c, d, e) {
+function __syscall5(syscallNo, a, b, c, d, e) {
     return __syscall6(syscallNo, a, b, c, d, e, null);
 }
 
-async function __syscall6(syscallNo, a, b, c, d, e, f) {
+function __syscall6(syscallNo, a, b, c, d, e, f) {
     console.log("wasm: syscall(" + syscallNo + ")");
 
     switch(syscallNo) {
@@ -265,7 +250,7 @@ async function __syscall6(syscallNo, a, b, c, d, e, f) {
 /**
  * getrlimit function (unimplemented)
  */
-async function getrlimit(a, b) {
+function getrlimit(a, b) {
     console.log("wasm: getrlimit(" + a + ", " + b + ")");
     return 0;
 }
@@ -274,7 +259,7 @@ async function getrlimit(a, b) {
 // WASM EXECUTION
 // --------------------------------------------------
 
-async function runFaasmFunc(funcName, wasmUrl, input, inputLen) {
+function runFaasmFunc(funcName, wasmUrl, input, inputLen) {
     faasmFunc = funcName;
 
     let importObject = {
@@ -305,7 +290,7 @@ async function runFaasmFunc(funcName, wasmUrl, input, inputLen) {
     let module = WebAssembly.instantiateStreaming(fetch(wasmUrl), importObject);
 
     // Call the exported function
-    await module.then(wasmModule => {
+    module.then(wasmModule => {
         let instance = wasmModule.instance;
 
         // Get a reference to the created memory

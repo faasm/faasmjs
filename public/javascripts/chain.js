@@ -1,5 +1,3 @@
-import { runFaasmFunc } from "/javascripts/faasm.js";
+import { runFaasmFunc } from "/javascripts/faasm/faasm.js";
 
-runFaasmFunc("chain", "/wasm/chain.wasm").then(res => {
-    console.log("Successfully ran chain function");
-});
+runFaasmFunc("chain", "/wasm/chain.wasm");
