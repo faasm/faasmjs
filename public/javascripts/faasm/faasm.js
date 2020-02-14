@@ -145,47 +145,40 @@ function __faasm_chain_this(idx, inputData, inputDataLen) {
     // Extract the input data from the wasm
     let inputDataStr = getStringFromWasm(inputData, inputDataLen);
 
-    // Build the invocation JSON. Requests here are always asynchronous.
-    // The calling function must await the result.
+    // Build the invocation JSON.
+
+    // HACK: Usually this would be asynchronous and the calling function
+    // would await the result of the chained call. However, in the JS
+    // context we have to make this synchronous.
     let data = {
         user: faasmUser,
         function: faasmFunc,
         index: idx,
         input_data: inputDataStr,
-        async: true,
+        async: false,
     };
 
-    // Submit the request
-    let responseBody = postDataSync(faasmInvokeUrl, data);
+    // Submit the request (will block until the function completes)
+    postDataSync(faasmInvokeUrl, data);
 
-    // Return the call ID
-    let callId = parseInt(responseBody);
-    console.log("Chained call ID " + callId);
-
-    return callId;
+    // Return a fake call ID (which the function will instantly pass to __faasm_await_call
+    return 1234;
 }
 
 /**
- * Awaits the completion of a chained function
+ * Awaits the completion of a chained function.
+ *
+ * NOTE: we are currently making the original chaining call synchronously
+ * so this should always return "SUCCESS" straight away.
  *
  * @param callId - the ID of the chained call
  */
 function __faasm_await_call(callId) {
     console.log("wasm: __faasm_await_call(" + callId + ")");
 
-    let data = {
-        id: callId,
-        status: true,
-    };
-
-    let responseBody = postDataSync(faasmInvokeUrl, data);
-    if(responseBody.startsWith("SUCCESS")) {
-        console.log("Chained call " + callId + " succeeded.");
-        return true;
-    } else {
-        console.error("Chained call " + callId + " failed (" + responseBody + ")");
-        return true;
-    }
+    // HACK - we are ignoring this because we're making the original chaining
+    // call synchronously
+    return 0;
 }
 
 function puts(offset) {
