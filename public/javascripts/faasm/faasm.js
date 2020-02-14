@@ -205,7 +205,7 @@ function __faasm_pull_state(keyOffset, len) {
  * @param len - length of the buffer
  */
 function __faasm_read_state(keyOffset, buffer, len) {
-    console.log("wasm: __faasm_read_state(" + key + ", " +  buffer + ", " + len + ")");
+    console.log("wasm: __faasm_read_state(" + keyOffset + ", " +  buffer + ", " + len + ")");
     let key = getStringFromWasm(keyOffset);
 
     // TODO - write state value to wasm memory
@@ -353,6 +353,10 @@ function runFaasmFunc(funcName, wasmUrl, input, inputLen) {
             __faasm_read_input: __faasm_read_input,
             __faasm_chain_this: __faasm_chain_this,
             __faasm_await_call: __faasm_await_call,
+            __faasm_push_state: __faasm_push_state,
+            __faasm_pull_state: __faasm_pull_state,
+            __faasm_read_state: __faasm_read_state,
+            __faasm_write_state: __faasm_write_state,
             __syscall1: __syscall1,
             __syscall2: __syscall2,
             __syscall3: __syscall3,
