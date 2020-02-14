@@ -49,7 +49,8 @@ work would require integrating this into Faasm.js.
 
 For now we can execute blocking Faasm functions in their own WebWorker, hence not 
 impacting the main browser thread, but there is undoubtedly a cleaner, more efficient 
-way to do this. 
+way to do this. Faasm's function chaining model can actually be synchronous or 
+asynchronous, supporting a fork-join approach as well as synchronous call-and-block.
 
 ## Host Interface
 
