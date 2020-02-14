@@ -13,6 +13,9 @@ let wasmOutput = null;
 let wasmInput = null;
 let wasmInputLen = null;
 
+// Object to store Faasm state in browser memory
+let faasmState = {};
+
 // --------------------------------------------------
 // UTILITIES
 // --------------------------------------------------
@@ -181,10 +184,69 @@ function __faasm_await_call(callId) {
     return 0;
 }
 
-function __faasm_read_state(key, offset, len) {
+/**
+ * Pulls the state value from the global state store
+ * @param keyOffset - the offset of the state key in wasm memory
+ * @param len - length of the state value
+ */
+function __faasm_pull_state(keyOffset, len) {
+    console.log("wasm: __faasm_pull_state(" + keyOffset + ", " + len + ")");
+    let key = getStringFromWasm(keyOffset);
 
+    // TODO - pull state from cluster
+
+    return 0;
 }
 
+/**
+ * Reads a state value referenced by the given state key
+ * @param keyOffset - the offset of the state key in wasm memory
+ * @param buffer - offset of the buffer in wasm memory
+ * @param len - length of the buffer
+ */
+function __faasm_read_state(keyOffset, buffer, len) {
+    console.log("wasm: __faasm_read_state(" + key + ", " +  buffer + ", " + len + ")");
+    let key = getStringFromWasm(keyOffset);
+
+    // TODO - write state value to wasm memory
+    if(!faasmState.hasOwnProperty(key)) {
+        __faasm_pull_state(key, len);
+    }
+
+    // TODO - copy data from state cache to wasm memory
+
+    return 0;
+}
+
+/**
+ * Writes the given state value to local state
+ * @param keyOffset - the offset of the key in wasm memory
+ * @param buffer - the offset of the value in wasm memory
+ * @param len - the length of the value
+ */
+function __faasm_write_state(keyOffset, buffer, len) {
+    console.log("wasm: __faasm_write_state(" + keyOffset + ", " +  buffer + ", " + len + ")");
+    let key = getStringFromWasm(keyOffset);
+
+    // TODO - write to state object
+
+    return 0;
+}
+
+/**
+ * Pushes the value from the local state to the global state
+ * @param keyOffset - offset of the key in wasm memory
+ */
+function __faasm_push_state(keyOffset) {
+    // TODO - push from local to global
+
+    return 0;
+}
+
+/**
+ * System call for printing simple (unformatted) strings
+ * @param offset - the offset of the string in wasm memory
+ */
 function puts(offset) {
     let printString = getStringFromWasm(offset, undefined);
     console.log("wasm: \"" + printString + "\"");
